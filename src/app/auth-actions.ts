@@ -63,7 +63,8 @@ export async function enrollMfa(): Promise<{ qr?: string; factorId?: string; err
     await client.auth.mfa.unenroll({ factorId: factor.id });
   const { data, error } = await client.auth.mfa.enroll({
     factorType: "totp",
-    friendlyName: "Gestão Íntima",
+    friendlyName: "CRM Segredo da Maria",
+    issuer: "CRM Segredo da Maria",
   });
   if (error || !data) return { error: "Não foi possível iniciar a configuração." };
   return { qr: data.totp.qr_code, factorId: data.id };
