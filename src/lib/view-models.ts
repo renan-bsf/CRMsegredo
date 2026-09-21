@@ -1,0 +1,74 @@
+import type { Actor } from "./domain";
+export type VariantView = {
+  id: string;
+  productId: string;
+  name: string;
+  category: "LINGERIE" | "BEACHWEAR" | "WELLNESS";
+  type: "SET" | "TOP" | "BOTTOM" | "COSMETIC" | "ELECTRONIC" | "ACCESSORY";
+  sku: string;
+  color: string;
+  size: string;
+  braBand: number | null;
+  braCup: string | null;
+  bottomSize: string | null;
+  power: string | null;
+  priceCents: number;
+  minStock: number;
+  stock: number;
+  available: number;
+  batches: {
+    id: string;
+    code: string;
+    quantity: number;
+    expiresAt: string | null;
+    unitCostCents?: number;
+  }[];
+};
+export type CustomerView = {
+  id: string;
+  name: string;
+  createdAt: string;
+  purchases: number;
+  totalCents: number;
+  lastPurchase: string | null;
+  consent: boolean;
+};
+export type SaleView = {
+  id: string;
+  number: number;
+  customer: string;
+  status: "COMPLETED" | "CANCELLED";
+  paymentStatus: "PAID" | "PENDING";
+  paymentMethod: "PIX" | "CASH" | "DEBIT" | "CREDIT" | "TRANSFER";
+  totalCents: number;
+  createdAt: string;
+  items: string;
+  costCents?: number;
+};
+export type ExpenseView = {
+  id: string;
+  description: string;
+  type: "OPERATING" | "PRO_LABORE";
+  amountCents: number;
+  occurredAt: string;
+};
+export type Overview = {
+  actor: Actor;
+  month: string;
+  revenue: number;
+  paid: number;
+  receivables: number;
+  count: number;
+  customers: number;
+  stock: number;
+  lowStock: number;
+  expiring: number;
+  cost?: number;
+  expenses?: number;
+  proLabore?: number;
+  profit?: number;
+  chart: { label: string; value: number }[];
+  mix: { label: string; quantity: number }[];
+  recent: SaleView[];
+  alerts: VariantView[];
+};
