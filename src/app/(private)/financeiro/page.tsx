@@ -1,4 +1,4 @@
-import { getExpenses, getOverview } from "@/lib/server/queries";
+import { getExpenses, getFinanceOverview } from "@/lib/server/queries";
 import { requireActor } from "@/lib/server/auth";
 import { money } from "@/lib/utils";
 import { monthParam } from "@/lib/params";
@@ -11,7 +11,7 @@ export default async function FinancePage({
 }) {
   await requireActor("manage");
   const month = monthParam((await searchParams).month);
-  const [d, expenses] = await Promise.all([getOverview(month), getExpenses(month)]);
+  const [d, expenses] = await Promise.all([getFinanceOverview(month), getExpenses(month)]);
   const dre = [
     { label: "Vendas líquidas de descontos", value: d.revenue },
     { label: "Custo das mercadorias vendidas", value: -(d.cost ?? 0) },

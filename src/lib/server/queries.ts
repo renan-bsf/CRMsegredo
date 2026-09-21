@@ -176,6 +176,66 @@ export async function getExpenses(month = businessDate().slice(0, 7)) {
     occurredAt: r.occurredAt.toISOString().slice(0, 10),
   }));
 }
+export async function getFinanceOverview(month = businessDate().slice(0, 7)) {
+  const actor = await requireActor("manage");
+  const { start, end, dateStart, dateEnd } = monthRange(month);
+  if (actor.demo) {
+    const sales = demoSales.filter(
+      (sale) => sale.createdAt >= start.toISOString() && sale.createdAt < end.toISOString(),
+    );
+    const revenue = sales.reduce((sum, sale) => sum + sale.totalCents, 0);
+    const cost = sales.reduce((sum, sale) => sum + (sale.costCents ?? 0), 0);
+    const paid = sales
+      .filter((sale) => sale.paymentStatus === "PAID")
+      .reduce((sum, sale) => sum + sale.totalCents, 0);
+    const expenses = demoExpenses.filter((expense) => expense.occurredAt.startsWith(month));
+    const operating = expenses
+      .filter((expense) => expense.type === "OPERATING")
+      .reduce((sum, expense) => sum + expense.amountCents, 0);
+    const proLabore = expenses
+      .filter((expense) => expense.type === "PRO_LABORE")
+      .reduce((sum, expense) => sum + expense.amountCents, 0);
+    return {
+      revenue,
+      cost,
+      paid,
+      receivables: revenue - paid,
+      expenses: operating,
+      proLabore,
+      profit: revenue - cost - operating - proLabore,
+    };
+  }
+  const [sales, expenses] = await db().$transaction([
+    db().sale.groupBy({
+      by: ["paymentStatus"],
+      orderBy: { paymentStatus: "asc" },
+      where: { status: "COMPLETED", createdAt: { gte: start, lt: end } },
+      _sum: { totalCents: true, costCents: true },
+    }),
+    db().expense.groupBy({
+      by: ["type"],
+      orderBy: { type: "asc" },
+      where: { voidedAt: null, occurredAt: { gte: dateStart, lt: dateEnd } },
+      _sum: { amountCents: true },
+    }),
+  ]);
+  const revenue = sales.reduce((sum, sale) => sum + (sale._sum?.totalCents ?? 0), 0);
+  const cost = sales.reduce((sum, sale) => sum + (sale._sum?.costCents ?? 0), 0);
+  const paid = sales.find((sale) => sale.paymentStatus === "PAID")?._sum?.totalCents ?? 0;
+  const operating =
+    expenses.find((expense) => expense.type === "OPERATING")?._sum?.amountCents ?? 0;
+  const proLabore =
+    expenses.find((expense) => expense.type === "PRO_LABORE")?._sum?.amountCents ?? 0;
+  return {
+    revenue,
+    cost,
+    paid,
+    receivables: revenue - paid,
+    expenses: operating,
+    proLabore,
+    profit: revenue - cost - operating - proLabore,
+  };
+}
 export async function getOverview(month = businessDate().slice(0, 7)): Promise<Overview> {
   const actor = await requireActor();
   const { start, end, dateStart, dateEnd } = monthRange(month);
