@@ -70,6 +70,7 @@ model Member {
   expenses  Expense[]
   movements StockMovement[]
   events    AuditEvent[]
+  purchases PurchaseDocument[]
   @@schema("private")
 }
 
@@ -114,6 +115,7 @@ model Variant {
   active      Boolean @default(true)
   batches     Batch[]
   items       SaleItem[]
+  purchaseItems PurchaseItem[]
   @@index([productId, active])
   @@schema("private")
 }
@@ -128,6 +130,7 @@ model Batch {
   unitCostCents Int
   receivedAt    DateTime @default(now())
   movements     StockMovement[]
+  purchaseItems PurchaseItem[]
   allocations   SaleAllocation[]
   @@unique([variantId, code])
   @@index([variantId, expiresAt])
@@ -228,5 +231,67 @@ model AuditEvent {
   createdAt DateTime @default(now())
   @@index([createdAt])
   @@index([memberId])
+  @@schema("private")
+}
+
+enum PurchaseKind {
+  ORDER
+  INVOICE
+  @@schema("private")
+}
+enum PurchaseStatus {
+  REGISTERED
+  RECEIVED
+  CANCELLED
+  @@schema("private")
+}
+model PurchaseDocument {
+  id String @id @default(uuid()) @db.Uuid
+  idempotencyKey String @unique @db.Uuid
+  kind PurchaseKind
+  status PurchaseStatus @default(REGISTERED)
+  supplierName String @db.VarChar(160)
+  supplierTaxId String @db.VarChar(14)
+  supplierKey String @db.VarChar(160)
+  number String @db.VarChar(40)
+  series String @default("") @db.VarChar(10)
+  accessKey String? @unique @db.VarChar(44)
+  issuedAt DateTime @db.Date
+  expectedAt DateTime? @db.Date
+  notes String @default("") @db.VarChar(2000)
+  totalCents Int
+  memberId String @db.Uuid
+  member Member @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  sourceOrderId String? @db.Uuid
+  sourceOrder PurchaseDocument? @relation("OrderInvoices", fields: [sourceOrderId], references: [id], onDelete: Restrict)
+  invoices PurchaseDocument[] @relation("OrderInvoices")
+  createdAt DateTime @default(now())
+  receivedAt DateTime?
+  cancelledAt DateTime?
+  cancelReason String? @db.VarChar(300)
+  items PurchaseItem[]
+  @@unique([kind, supplierKey, number, series])
+  @@index([issuedAt, id])
+  @@index([sourceOrderId])
+  @@index([memberId])
+  @@index([kind, status])
+  @@schema("private")
+}
+model PurchaseItem {
+  id String @id @default(uuid()) @db.Uuid
+  documentId String @db.Uuid
+  document PurchaseDocument @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  variantId String @db.Uuid
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  description String @db.VarChar(240)
+  quantity Int
+  unitCostCents Int
+  lotCode String @db.VarChar(60)
+  expiresAt DateTime? @db.Date
+  batchId String? @db.Uuid
+  batch Batch? @relation(fields: [batchId], references: [id], onDelete: Restrict)
+  @@unique([documentId, variantId, lotCode])
+  @@index([batchId])
+  @@index([variantId])
   @@schema("private")
 }

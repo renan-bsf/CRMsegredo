@@ -4,7 +4,7 @@ Backoffice privado para uma operação de lingerie, moda praia e bem-estar ínti
 
 ## Executar localmente
 
-Requer Node.js 22.14+ e npm. Nesta entrega, `.env.local` contém apenas `DEMO_MODE=true` e é ignorado pelo Git. A demonstração usa registros fictícios, não conecta ao banco e bloqueia todas as gravações. A flag só tem efeito quando `NODE_ENV=development`.
+Requer Node.js 22.14+ e npm. O arquivo `.env.local` é ignorado pelo Git. Para explorar sem conexão, use `DEMO_MODE=true`. A demonstração usa registros fictícios, não conecta ao banco e bloqueia todas as gravações. A flag só tem efeito quando `NODE_ENV=development`.
 
 ```powershell
 npm ci
@@ -19,6 +19,7 @@ Abra http://127.0.0.1:3000. Em uma cópia nova, crie `.env.local` com `DEMO_MODE
 - Visão geral com mês selecionável, vendas, resultado gerencial, ticket médio, pendências e estoque por categoria.
 - Produtos e variações por SKU, cor, tamanho, tórax/taça, peça inferior e alimentação de eletrônicos.
 - Estoque por lote: entradas, custos, validade, ajuste com motivo, consumo FEFO e devolução nos cancelamentos. Cosméticos exigem validade.
+- Compras e notas fiscais de entrada: pedidos, notas avulsas ou vinculadas, filtros, itens por variação/lote, recebimento transacional no estoque e cancelamento auditado. [Guia do módulo](docs/COMPRAS.md).
 - CRM: cadastro e edição, nome de atendimento, contato, medidas e preferências com autorização, arquivamento e consulta auditada do perfil.
 - Vendas diretas: itens, desconto, pagamento manual, valores a receber, confirmação de recebimento e cancelamento. Preços e custos são calculados pelo servidor.
 - Finanças exclusivas dos sócios: DRE gerencial simplificada, despesas, pró-labore e anulação de lançamentos.
@@ -28,7 +29,7 @@ Não há catálogo público, carrinho externo, gateway ou link de pagamento. O f
 
 ## Conectar um Supabase dedicado
 
-Nenhum projeto remoto foi alterado nesta entrega. Os projetos encontrados na conta não identificavam esta operação. A configuração exige um destino e credenciais definidos pelo responsável.
+O projeto desta operação já está conectado ao Supabase. As instruções abaixo se destinam a uma instalação nova; não reaplique migrações iniciais numa base existente sem reconciliar o histórico. Credenciais ficam apenas nas variáveis locais e da hospedagem.
 
 1. Crie ou selecione o projeto Supabase exclusivo deste sistema. Mantenha o schema `private` fora da lista de schemas expostos pelo Data API. Desative o Data API se não precisar dele.
 2. Desative novos cadastros públicos em **Authentication → Providers → Email / Allow new users to sign up**. Mantenha os limites de tentativas de autenticação do Supabase configurados. Cadastre os sócios no painel Auth e confirme seus e-mails. Nenhum formulário público cria usuários.

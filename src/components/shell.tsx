@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   ChartNoAxesCombined,
   Settings2,
+  FileText,
   ShieldCheck,
   LogOut,
   Eye,
@@ -24,6 +25,7 @@ const nav = [
   { href: "/", title: "Visão geral", icon: LayoutDashboard },
   { href: "/vendas", title: "Vendas", icon: ShoppingBag },
   { href: "/estoque", title: "Produtos e estoque", icon: Package },
+  { href: "/compras", title: "Compras e notas fiscais", icon: FileText, admin: true },
   { href: "/clientes", title: "Clientes", icon: Users },
   { href: "/financeiro", title: "Financeiro", icon: ChartNoAxesCombined, admin: true },
   { href: "/configuracoes", title: "Configurações", icon: Settings2, admin: true },
@@ -32,7 +34,9 @@ export function Shell({ actor, children }: { actor: Actor; children: React.React
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [privateView, setPrivateView] = useState(false);
-  const current = nav.find((n) => n.href === pathname);
+  const active = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
+  const current = nav.find((n) => active(n.href));
   return (
     <div className={cn("app-shell", privateView && "privacy-mode")}>
       <a href="#main" className="skip-link">
@@ -70,13 +74,13 @@ export function Shell({ actor, children }: { actor: Actor; children: React.React
               <Link
                 key={n.href}
                 href={n.href}
-                aria-current={pathname === n.href ? "page" : undefined}
-                className={cn("nav-item", pathname === n.href && "active")}
+                aria-current={active(n.href) ? "page" : undefined}
+                className={cn("nav-item", active(n.href) && "active")}
                 onClick={() => setOpen(false)}
               >
                 <n.icon size={19} strokeWidth={1.7} />
                 {n.title}
-                {pathname === n.href && (
+                {active(n.href) && (
                   <span className="ml-auto h-1.5 w-1.5 rounded-full bg-rose-300" />
                 )}
               </Link>

@@ -10,8 +10,12 @@ Depende da escolha de um projeto Supabase e configuração de segredos. Aplicar 
 
 ## Fase 3 — continuação do PRD
 
-Incorporar as seções posteriores a 3.1 quando fornecidas. Confirmar regras de kits/peças avulsas, fornecedores/compras, devoluções parciais, parcelas/fiado, taxas, retiradas de lucro, fechamento financeiro, retenção/anonimização e recuperação de acesso. São questões a resolver, não funcionalidades prometidas pelo documento parcial.
+Incorporar as seções posteriores a 3.1 quando fornecidas. Confirmar regras de kits/peças avulsas, cadastro dedicado de fornecedores, importação XML/PDF e contas a pagar, devoluções parciais, parcelas/fiado, taxas, retiradas de lucro, fechamento financeiro, retenção/anonimização e recuperação de acesso. São questões a resolver, não funcionalidades prometidas pelo documento parcial.
 
 ## Fase 4 — implantação privada
 
 Escolher hospedagem Node.js compatível com Next.js e Prisma, configurar domínio/HTTPS, separar segredos de runtime e migração, aplicar política de backup e alertas técnicos sem dados pessoais. Publicação não foi executada nesta entrega local.
+
+## Compras e notas fiscais de entrada
+
+Implementado o registro manual de pedidos e notas, vínculo entre documentos, recebimento de estoque e cancelamento auditado. Consulte o [guia de compras](COMPRAS.md) para regras e limites.
